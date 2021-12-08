@@ -1,4 +1,4 @@
-NAME=pfdcdev
+NAME=fidump
 MAKE=make
 
 obj-m += $(NAME).o
