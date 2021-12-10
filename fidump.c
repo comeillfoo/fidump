@@ -328,7 +328,7 @@ static void fill_the_entry( int pid, unsigned int fd, struct kstring* ptr_kern_b
     // read finish
 }
 
-static const char* error_msg = "{ error: \"parameters not set\" }\n";
+static const char* error_msg = "{ \"error\": \"parameters not set\" }\n";
 static struct kstring com_buf = { .data = NULL, .size = 0, .capacity = 0 };
 
 static ssize_t proc_fidump_read( struct file* ptr_file, char __user * usr_buf, size_t length, loff_t* ptr_pos ) {
