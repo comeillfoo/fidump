@@ -8,7 +8,7 @@
 #include <linux/fdtable.h> /* essential for files_struct */
 #include <linux/pid.h> /* essential for get_task_pid, find_get_pid */
 #include <linux/mutex.h> /* essential for mutex */
-#include <linux/rwlock_types.h> /* essential for rwlock_t */
+// #include <linux/rwlock_types.h> /* essential for rwlock_t */
 
 MODULE_LICENSE( "Dual MIT/GPL" );
 
@@ -20,7 +20,7 @@ MODULE_LICENSE( "Dual MIT/GPL" );
 
 // static DEFINE_MUTEX( fidump_mutex ); // -- for the sake of multithreading
 
-static rwlock_t fidump_rw_lock = __RW_LOCK_UNLOCKED( fidump_rw_lock ); // -- for the sake of multithreading
+// static rwlock_t fidump_rw_lock = __RW_LOCK_UNLOCKED( fidump_rw_lock ); // -- for the sake of multithreading
 // static unsigned long fidump_rw_lock_flags;
 
 // -- for proc dir entry
@@ -128,9 +128,9 @@ static struct kstring com_buf = { .data = NULL, .size = 0, .capacity = 0 };
 
 static ssize_t proc_fidump_read( struct file* ptr_file, char __user * usr_buf, size_t length, loff_t* ptr_pos ) {
     printk( KERN_INFO MOD_NAME ": proc_fidump_read: [ ptr_file: %p ], [ usr_buf: %p ], [ length: %zu ], [ ptr_pos: %p/%llu ]\n", ptr_file, usr_buf, length, ptr_pos, *ptr_pos );
-    read_lock( &fidump_rw_lock );
+    // read_lock( &fidump_rw_lock );
     if ( *ptr_pos > 0 ) {
-        read_unlock( &fidump_rw_lock );
+        // read_unlock( &fidump_rw_lock );
         return 0;
     }
 
@@ -147,7 +147,7 @@ static ssize_t proc_fidump_read( struct file* ptr_file, char __user * usr_buf, s
     else {
         printk( KERN_CRIT MOD_NAME ": proc_fidump_pid_read: can't copy to user buffer\n" );
         if ( com_buf.data != NULL ) kstring_free( &com_buf );
-        read_unlock( &fidump_rw_lock );
+        // read_unlock( &fidump_rw_lock );
         return 0;
     }
 
@@ -155,7 +155,7 @@ static ssize_t proc_fidump_read( struct file* ptr_file, char __user * usr_buf, s
     //     printk( KERN_CRIT MOD_NAME ": proc_fidump_pid_read: can't free the kernel buffer 'cause of corrupted pointer\n" );
     //     return 0;
     // } else kstring_free( &com_buf );
-    read_unlock( &fidump_rw_lock );
+    // read_unlock( &fidump_rw_lock );
     return com_buf.size;
 }
 
@@ -202,11 +202,11 @@ static ssize_t proc_fidump_write( struct file* ptr_file, const char __user* usr_
     unsigned int pid = 1;
     unsigned int fd = 0;
     ssize_t count = 0;
-    write_lock( &fidump_rw_lock );
+    // write_lock( &fidump_rw_lock );
     printk( KERN_INFO MOD_NAME ": proc_fidump_write: writing started\n" );
     printk( KERN_INFO MOD_NAME ": proc_fidump_write: [ ptr_file: %p ], [ usr_buf: %p ], [ length: %zu ], [ ptr_pos: %p/%llu ]\n", ptr_file, usr_buf, length, ptr_pos, *ptr_pos );
     if ( *ptr_pos > 0 ) {
-        write_unlock( &fidump_rw_lock );
+        // write_unlock( &fidump_rw_lock );
         return -EINVAL;
     }
     count += get_params( usr_buf, length, &pid, &fd ) + 1;
@@ -218,6 +218,6 @@ static ssize_t proc_fidump_write( struct file* ptr_file, const char __user* usr_
     fill_the_entry( pid, fd, &com_buf );
 
     printk( KERN_INFO MOD_NAME ": proc_fidump_write: writing finished; position is %llu\n", *ptr_pos );
-    write_unlock( &fidump_rw_lock );
+    // write_unlock( &fidump_rw_lock );
     return count;
 }
